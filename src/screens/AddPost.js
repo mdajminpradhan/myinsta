@@ -20,6 +20,7 @@ import ProgressBar from 'react-native-progress/Bar';
 
 import database from '@react-native-firebase/database';
 import storage from '@react-native-firebase/storage';
+import shortid from 'shortid'
 
 import ImagePicker from 'react-native-image-picker';
 import {options} from '../utils/options';
@@ -73,8 +74,41 @@ const AddPost = ({navigation, userState}) => {
     });
   };
 
-  const AddPost = async () => {
-      //
+  const addPost = async () => {
+      try {
+        if(!location || !description || !image){
+          Snackbar.show({
+            text: 'Please add all field',
+            textColor: 'white',
+            backgroundColor: 'red'
+          })
+        }
+
+        const uid = shortid.generate()
+
+        await database().ref(`/posts/${uid}`).set({
+          location,
+          description,
+          picture: image,
+          by: userName.name,
+          date: Date.now(),
+          instaId: userState.instaUserName,
+          userImage: userState.image
+        })
+
+        console.log("Post added success")
+
+        navigation.navigate('Home')
+
+
+      } catch (error) {
+        console.log(error)
+        Snackbar.show({
+          text: 'Post creation failed...',
+          textColor: 'white',
+          backgroundColor: 'red'
+        })
+      }
   }
 
   return (
